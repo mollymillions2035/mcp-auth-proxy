@@ -216,6 +216,15 @@ func Run(
 		if err != nil {
 			return fmt.Errorf("failed to create repository: %w", err)
 		}
+	case "firestore":
+		project, database, collection, ferr := repository.ParseFirestoreDSN(repositoryDSN, "mcp-oauth-proxy")
+		if ferr != nil {
+			return fmt.Errorf("failed to create repository: %w", ferr)
+		}
+		repo, err = repository.NewFirestoreRepository(context.Background(), project, database, collection)
+		if err != nil {
+			return fmt.Errorf("failed to create repository: %w", err)
+		}
 	default:
 		return fmt.Errorf("unsupported repository backend: %s", repositoryBackend)
 	}

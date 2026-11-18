@@ -171,10 +171,12 @@ openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048
 
 | Option                 | Environment Variable | Default | Description                                                                                                           |
 | ---------------------- | -------------------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
-| `--repository-backend` | `REPOSITORY_BACKEND` | `local` | Storage backend for OAuth state. Supported values: `local` (embedded BoltDB), `sqlite`, `postgres`, or `mysql`.       |
-| `--repository-dsn`     | `REPOSITORY_DSN`     | -       | Connection string passed directly to the SQL driver. Required when `--repository-backend` is `sqlite/postgres/mysql`. |
+| `--repository-backend` | `REPOSITORY_BACKEND` | `local` | Storage backend for OAuth state. Supported values: `local` (embedded BoltDB), `sqlite`, `postgres`, `mysql`, or `firestore`. |
+| `--repository-dsn`     | `REPOSITORY_DSN`     | -       | Connection string passed directly to the SQL driver. Required when `--repository-backend` is `sqlite/postgres/mysql`; optional for `firestore`. |
 
 `local` uses an embedded BoltDB file under `--data-path`. SQL backends run migrations automatically via GORM; the DSN must be valid for the chosen driver (examples below). The deprecated value `sql` is no longer accepted—select the concrete driver instead.
+
+`firestore` stores OAuth state in Cloud Firestore (Native mode), which suits serverless hosts such as Cloud Run where local files don't survive an instance restart. Credentials come from Application Default Credentials (on Cloud Run, the service's identity, which needs `roles/datastore.user`). The DSN is optional: `projects/<project>/databases/<database>[/collections/<collection>]`. Without it, the project is detected from the environment, the `(default)` database is used, and documents go in the `mcp-oauth-proxy` collection. Set `FIRESTORE_EMULATOR_HOST` to use the emulator.
 
 ```bash title="DSN examples"
 # sqlite

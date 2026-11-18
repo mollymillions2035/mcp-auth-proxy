@@ -11,13 +11,16 @@ import (
 )
 
 func TestGrantRevocationAndFirstRotation(t *testing.T) {
-	for _, backend := range []string{"kvs", "sqlite"} {
+	for _, backend := range []string{"kvs", "sqlite", "firestore"} {
 		t.Run(backend, func(t *testing.T) {
 			var repo Repository
 			var err error
-			if backend == "kvs" {
+			switch backend {
+			case "kvs":
 				repo, err = NewKVSRepository(filepath.Join(t.TempDir(), "test.db"), "test")
-			} else {
+			case "firestore":
+				repo, err = newFirestoreTestRepository(t)
+			default:
 				repo, err = NewSQLRepository("sqlite", filepath.Join(t.TempDir(), "test.db"))
 			}
 			if err != nil {
